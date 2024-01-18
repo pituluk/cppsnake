@@ -35,15 +35,6 @@ struct Game
     std::list<Direction> inputs;
     Snake s;
 };
-COORD getscreensize(HANDLE firstbuffer)
-{
-    CONSOLE_SCREEN_BUFFER_INFO bufferinfo;
-    GetConsoleScreenBufferInfo(firstbuffer, &bufferinfo);
-    const auto newscreenwidth = bufferinfo.srWindow.Right - bufferinfo.srWindow.Left + 1;
-    const auto newscreenheight = bufferinfo.srWindow.Bottom - bufferinfo.srWindow.Top + 1;
-
-    return COORD{ static_cast<short>(newscreenwidth), static_cast<short>(newscreenheight) };
-}
 void writebuffer(std::vector<char>& framedata,HANDLE consolebuffer)
 {
     static bool bufferswitch = true;
@@ -328,9 +319,9 @@ void handleSnek(Game& g)
 int main()
 {
     HANDLE consoleBuffer = GetStdHandle(STD_OUTPUT_HANDLE);
-    const auto screenSize = getscreensize(consoleBuffer);
     Game g;
-    SetConsoleScreenBufferSize(consoleBuffer, screenSize);
+    COORD newSize = {g.realSize.X,g.realSize.Y};
+    SetConsoleScreenBufferSize(consoleBuffer, newSize);
     while (g.gameOver != true)
     {
         drawBoard(g);
