@@ -230,11 +230,11 @@ void handleInputs(Game& g)
 }
 bool checkCollision(COORD gameSize, Snake& s, COORD coords)
 {
-    if (coords.Y == 1 || coords.Y == gameSize.Y + 1)
+    if (coords.Y == 1 || coords.Y == gameSize.Y-1)
     {
         return true;
     }
-    else if(coords.X == 0 || coords.X == gameSize.X+1)
+    else if(coords.X == 0 || coords.X == gameSize.X-2)
     {
         return true;
     }
@@ -282,7 +282,7 @@ void handleSnek(Game& g)
         }
     }
 
-    bool willCollide = checkCollision(g.gameSize,g.s, newCoords);
+    bool willCollide = checkCollision(g.realSize,g.s, newCoords);
     if (willCollide)
     {
         g.gameOver = true;
