@@ -6,7 +6,7 @@
 #include <chrono>
 int main()
 {
-	Game& g = Game::instance();
+	Game g;
 	if (!g.initialize())
 	{
 		return EXIT_FAILURE;

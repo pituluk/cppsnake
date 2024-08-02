@@ -20,19 +20,7 @@ struct Snake
 };
 class Game
 {
-private:
-	Game() {}
-	HANDLE consoleOutHandle = INVALID_HANDLE_VALUE;
-	HANDLE consoleInHandle = INVALID_HANDLE_VALUE;
-	std::vector<char> frameDatav = std::vector<char>(static_cast<size_t>((realSize.X * realSize.Y)));
 public:
-	static Game& instance() //Yes, I know singletons are bad but for this game why not?
-	{
-		static Game instance_;
-		return instance_;
-	}
-	Game(const Game&) = delete;
-	Game& operator= (const Game) = delete;
 	static constexpr COORD gameSize = { 40,20 };
 	static constexpr COORD realSize = { gameSize.X + 3,gameSize.Y + 3 }; //because of walls and score
 
@@ -58,5 +46,8 @@ public:
 	bool writeFrame();
 	bool initialize();
 
-
+private:
+	HANDLE consoleOutHandle = INVALID_HANDLE_VALUE;
+	HANDLE consoleInHandle = INVALID_HANDLE_VALUE;
+	std::vector<char> frameDatav = std::vector<char>(static_cast<size_t>((realSize.X * realSize.Y)));
 };

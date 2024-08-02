@@ -3,7 +3,8 @@
 #include <string>
 
 #include "randomness.h"
-bool writeBuffer(const std::vector<char>& frameData, HANDLE consoleBuffer) {
+bool writeBuffer(const std::vector<char>& frameData, HANDLE consoleBuffer)
+{
 	DWORD ret = SetConsoleCursorPosition(consoleBuffer, { 0, 0 }); //I use WINAPI instead of virtual terminal sequences because when I tried them they were buggy and wouldnt render the game properly.
 	if (ret == 0)
 	{
@@ -13,18 +14,22 @@ bool writeBuffer(const std::vector<char>& frameData, HANDLE consoleBuffer) {
 		return false;
 
 	}
-	WriteConsoleA(consoleBuffer, frameData.data(), frameData.size(), nullptr,nullptr);
+	WriteConsoleA(consoleBuffer, frameData.data(), (DWORD)frameData.size(), nullptr, nullptr);
 	return true;
 }
-bool Game::isValidApplePos(short X, short Y) {
-	for (const auto& bodyCell : dangerNoodle.body) {
-		if (X == bodyCell.X && Y == bodyCell.Y) {
+bool Game::isValidApplePos(short x, short y)
+{
+	for (const auto& bodyCell : dangerNoodle.body)
+	{
+		if (x == bodyCell.X && y == bodyCell.Y)
+		{
 			return false;
 		}
 	}
 	return true;
 }
-void Game::drawBoard() {
+void Game::drawBoard()
+{
 	static bool firstFrame = true;
 
 	size_t writeOffset = 0;
@@ -39,37 +44,42 @@ void Game::drawBoard() {
 		return;
 	}
 	writeOffset += scoreText.size();
-	for (size_t i = 0; i < realSize.X; i++) {
-		if (i == realSize.X - 1) {
+	for (size_t i = 0; i < realSize.X; i++)
+	{
+		if (i == realSize.X - 1)
+		{
 			frameData[1][i] = '\n';
 			break;
 		}
 		frameData[1][i] = '#';
 	}
 
-	for (size_t i = 0; i < gameSize.Y; i++) {
+	for (size_t i = 0; i < gameSize.Y; i++)
+	{
 		frameData[2 + i][0] = '#';
-		for (size_t ii = 0; ii < gameSize.X; ii++) {
+		for (size_t ii = 0; ii < gameSize.X; ii++)
+		{
 			frameData[2 + i][ii + 1] = ' ';
 		}
 		frameData[2 + i][realSize.X - 2] = '#';
 		frameData[2 + i][realSize.X - 1] = '\n';
 	}
-	for (size_t i = 0; i < realSize.X - 1; i++) {
+	for (size_t i = 0; i < realSize.X - 1; i++)
+	{
 		frameData[realSize.Y - 1][i] = '#';
 	}
 
 	short spawnX = randomInt<short>(5, gameSize.X - 5);
 	short spawnY = randomInt<short>(5, gameSize.Y - 5);
 	Direction dir = static_cast<Direction>(
-		randomInt<short>(1, 4)); // short because 1 byte types arent allowed in
-	// uniform_int_distribution
+		randomInt<short>(1, 4)); // short because 1 byte types arent allowed in uniform_int_distribution
 	COORD head = { spawnX, spawnY };
 	dangerNoodle.body.push_back(head);
 	dangerNoodle.headPos = { spawnX, spawnY };
 	frameData[spawnY][spawnX] = '%';
 	COORD bodyCell;
-	switch (dir) {
+	switch (dir)
+	{
 	case up: {
 		dangerNoodle.dir = up;
 		bodyCell = { spawnX, spawnY-- };
@@ -95,15 +105,19 @@ void Game::drawBoard() {
 	frameData[bodyCell.Y][bodyCell.X] = 'X';
 	firstFrame = false;
 }
-void Game::drawApple() {
-	if (!isFoodThere) {
+void Game::drawApple()
+{
+	if (!isFoodThere)
+	{
 		bool validPlace = false;
 		short spawnX;
 		short spawnY;
-		while (validPlace == false) {
+		while (validPlace == false)
+		{
 			spawnX = randomInt<short>(1, gameSize.X);
 			spawnY = randomInt<short>(2, gameSize.Y);
-			if (isValidApplePos(spawnX, spawnY)) {
+			if (isValidApplePos(spawnX, spawnY))
+			{
 				validPlace = true;
 			}
 		}
@@ -115,38 +129,46 @@ void Game::drawApple() {
 	else
 		return;
 }
-void Game::handleInputs() {
+void Game::handleInputs()
+{
 	INPUT_RECORD irec;
 	DWORD cc;
 	DWORD numberOfInputs = 0;
 	GetNumberOfConsoleInputEvents(consoleInHandle, &numberOfInputs);
-	if (numberOfInputs == 0) {
+	if (numberOfInputs == 0)
+	{
 		DWORD err = GetLastError();
 		return; //we ignore this error because its not really critical, game still works just inputs dont
 	}
-	for (size_t i = 0; i < numberOfInputs; i++) {
+	for (size_t i = 0; i < numberOfInputs; i++)
+	{
 		ReadConsoleInput(consoleInHandle, &irec, 1, &cc); //same here
 		if (irec.EventType == KEY_EVENT &&
-			((KEY_EVENT_RECORD&)irec.Event).bKeyDown) {
+			((KEY_EVENT_RECORD&)irec.Event).bKeyDown)
+		{
 			KEY_EVENT_RECORD krec = irec.Event.KeyEvent;
-			switch (krec.wVirtualKeyCode) { //numbered cases are for WASD
+			switch (krec.wVirtualKeyCode)
+			{ //numbered cases are for WASD
 			case VK_UP:
 			case 0x57: {
-				if (dangerNoodle.dir != down) {
+				if (dangerNoodle.dir != down)
+				{
 					inputs.push_back(up);
 				}
 				return;
 			}
 			case VK_DOWN:
 			case 0x53: {
-				if (dangerNoodle.dir != up) {
+				if (dangerNoodle.dir != up)
+				{
 					inputs.push_back(down);
 				}
 				return;
 			}
 			case VK_LEFT:
 			case 0x41: {
-				if (dangerNoodle.dir == right) {
+				if (dangerNoodle.dir == right)
+				{
 					return;
 				}
 				inputs.push_back(left);
@@ -154,7 +176,8 @@ void Game::handleInputs() {
 			}
 			case VK_RIGHT:
 			case 0x44: {
-				if (dangerNoodle.dir == left) {
+				if (dangerNoodle.dir == left)
+				{
 					return;
 				}
 				inputs.push_back(right);
@@ -170,7 +193,7 @@ bool Game::checkCollision(COORD coords)
 	{
 		return true;
 	}
-	else if (coords.X == 0 || coords.X == realSize.X - 2) 
+	else if (coords.X == 0 || coords.X == realSize.X - 2)
 	{
 		return true;
 	}
@@ -189,7 +212,8 @@ bool Game::checkCollision(COORD coords)
 }
 void Game::handleSnek()
 {
-	if (!inputs.empty()) {
+	if (!inputs.empty())
+	{
 		dangerNoodle.dir = inputs.front();
 		inputs.pop_front();
 	}
@@ -265,7 +289,7 @@ bool Game::initialize()
 	CONSOLE_CURSOR_INFO info;
 	info.dwSize = 1;
 	info.bVisible = FALSE;
-	SetConsoleCursorInfo(consoleOutHandle, &info);
+	SetConsoleCursorInfo(consoleOutHandle, &info); //just visual, we dont care if it fails.
 	consoleInHandle = GetStdHandle(STD_INPUT_HANDLE);
 	if (consoleOutHandle == INVALID_HANDLE_VALUE || consoleInHandle == INVALID_HANDLE_VALUE)
 	{
