@@ -1,7 +1,7 @@
+#pragma once
 #include <concepts>
 #include <limits>
 #include <random>
-#pragma once
 #ifndef NOMINMAX
 #define randomnessminmax 1
 #pragma push_macro("min")
